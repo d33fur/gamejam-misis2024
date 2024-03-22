@@ -4,7 +4,7 @@ project(server LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
-# include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
+include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
 
 find_package(Boost 1.71.0 COMPONENTS system REQUIRED) # 1.82.0
 find_package(Threads REQUIRED)

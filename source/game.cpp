@@ -26,10 +26,12 @@ void read() {
       try {
         json j = json::parse(data_, data_ + length);
 
+        std::string from = remote_endpoint_.address().to_string();
         std::string to = j["to"];
         std::string data = j["data"];
 
         std::cout << "To: " << to << std::endl;
+        std::cout << "From: " << from << std::endl;
         std::cout << "Data: " << data << std::endl;
 
         std::string from = remote_endpoint_.address().to_string();
