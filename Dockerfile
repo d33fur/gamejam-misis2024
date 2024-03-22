@@ -24,7 +24,17 @@ FROM ubuntu:22.04
 
 RUN groupadd dev && useradd -g dev dev
 USER dev
-COPY --chown=dev:dev --from=build /app/build/server /app/server
+COPY --chown=dev:dev --from=build /app/build/lobby /app/lobby
+COPY --chown=dev:dev --from=build /app/build/game /app/game
 
-CMD ["/app/server", "0.0.0.0", "8080"]
+RUN apt-get update && \
+    apt-get install -y supervisor
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+ENV HOME /app
+
+CMD ["/usr/bin/supervisord"]
+
+# CMD ["/app/lobby", "0.0.0.0", "8080"]
 EXPOSE 8080

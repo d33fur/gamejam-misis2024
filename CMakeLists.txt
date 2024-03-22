@@ -10,16 +10,17 @@ find_package(Boost 1.71.0 COMPONENTS system REQUIRED) # 1.82.0
 find_package(Threads REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
-add_executable(${PROJECT_NAME} source/server.cpp)
+add_executable(game source/game.cpp)
+# add_executable(lobby source/server.cpp)
 
 # Include directories
-target_include_directories(${PROJECT_NAME} PRIVATE
+target_include_directories(game PRIVATE
     ${Boost_INCLUDE_DIRS}
     ${nlohmann_json_INCLUDE_DIRS}
 )
 
 # Link libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(game PRIVATE
     Boost::system
     Threads::Threads
     nlohmann_json::nlohmann_json
