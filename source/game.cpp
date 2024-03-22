@@ -34,7 +34,6 @@ void read() {
         std::cout << "From: " << from << std::endl;
         std::cout << "Data: " << data << std::endl;
 
-        std::string from = remote_endpoint_.address().to_string();
         json response = {
           {"to", from},
           {"from", to},
