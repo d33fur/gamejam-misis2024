@@ -1,0 +1,8 @@
+.gitignore
+docker-compose.yml
+Makefile
+Dockerfile
+.dockerignore
+build
+CMakeUserPresets.json
+.vscode
