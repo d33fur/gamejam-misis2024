@@ -41,7 +41,7 @@ local-rebuild:
 	cmake -DCMAKE_BUILD_TYPE=Release .. && \
 	cmake --build . && \
 	source deactivate_conanbuild.sh && \
-	./game)
+	./lobby 0.0.0.0 8001)
 
 .PHONY: conan-rebuild
 conan-rebuild:

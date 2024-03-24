@@ -1,51 +1,8 @@
-// #include <iostream>
-
-// struct lobby {
-//     // explicit UdpServer(ip::udp::socket socket)
-//     //   : socket_(std::move(socket)) {
-//     //   read();
-//     // }
-//   private:
-//     void read() {
-
-//     }
-
-//     void write() {
-
-//     }
-//     uint16_t lobbyId_;
-//     std::string lobbyPassword_;
-//     std::string lobbyName_;
-//     std::string hostIp_;
-//     std::string teacher_;
-//     std::string joker_;
-// };
-
-// void getLobbyList() {
-
-// }
-
-// void makeLobby(std::string name, std::string password, std::string ip) {
-
-// }
-
-// void deleteLobby(std::string name, std::string password, std::string ip) {
-  
-// }
-
-// void joinLobby(std::string name, std::string password) {
-
-// }
-
-// void sendDataToPlayerByLobby() {
-
-// }
-
-
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
 #include <boost/asio.hpp>
+#include <nlohmann/json.hpp>
 #include <chrono>
 #include <cstdlib>
 #include <ctime>
@@ -58,22 +15,14 @@ namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
+using json = nlohmann::json;
 
 struct lobby {
-  // private:
-  //   void read() {
-
-  //   }
-
-  //   void write() {
-
-  //   }
-  // uint16_t id_;
-  std::string password_;
-  std::string name_;
-  std::string ip_;
-  std::string teacher_;
-  std::string joker_;
+  std::string password_ = "";
+  std::string name_ = "";
+  std::string ip_ = "";
+  std::string ip_notHost_ = "";
+  int people_ = 0;
 };
 
 uint16_t idCounter = 1;
@@ -96,7 +45,7 @@ namespace my_program_state {
 class http_connection : public std::enable_shared_from_this<http_connection> {
   public:
     http_connection(tcp::socket socket)
-        : socket_(std::move(socket)) {
+      : socket_(std::move(socket)) {
     }
 
     void start() {
@@ -152,131 +101,90 @@ class http_connection : public std::enable_shared_from_this<http_connection> {
       write_response();
     }
 
-    void
-    create_response()
-    {
-        if(request_.target() == "/lobbies")
-        {
-            response_.set(http::field::content_type, "application/json");
-            beast::ostream(response_.body())
-                << "<html>\n"
-                <<  "<head><title>Request count</title></head>\n"
-                <<  "<body>\n"
-                <<  "<h1>Request count</h1>\n"
-                <<  "<p>There have been "
-                <<  my_program_state::request_count()
-                <<  " requests so far.</p>\n"
-                <<  "</body>\n"
-                <<  "</html>\n";
+    void create_response() {
+      if (request_.target() == "/lobbies") {
+        json json_array = json::array();
+        for (const auto& lobby_entry : lobbyMap) {
+          json lobby_json;
+          lobby_json["id"] = lobby_entry.first;
+          lobby_json["name"] = lobby_entry.second.name_;
+          lobby_json["people"] = lobby_entry.second.people_;
+          json_array.push_back(lobby_json);
         }
-        else if(request_.target() == "/makeLobby")
-        {
-            response_.set(http::field::content_type, "application/json");
-            beast::ostream(response_.body())
-                <<  "<html>\n"
-                <<  "<head><title>Current time</title></head>\n"
-                <<  "<body>\n"
-                <<  "<h1>Current time</h1>\n"
-                <<  "<p>The current time is "
-                <<  my_program_state::now()
-                <<  " seconds since the epoch.</p>\n"
-                <<  "</body>\n"
-                <<  "</html>\n";
-        }
-        else if(request_.target() == "/deleteLobby")
-        {
-            response_.set(http::field::content_type, "application/json");
-            beast::ostream(response_.body())
-                <<  "<html>\n"
-                <<  "<head><title>Current time</title></head>\n"
-                <<  "<body>\n"
-                <<  "<h1>Current time</h1>\n"
-                <<  "<p>The current time is "
-                <<  my_program_state::now()
-                <<  " seconds since the epoch.</p>\n"
-                <<  "</body>\n"
-                <<  "</html>\n";
-        }
-        else if(request_.target() == "/leaveLobby")
-        {
-            response_.set(http::field::content_type, "application/json");
-            beast::ostream(response_.body())
-                <<  "<html>\n"
-                <<  "<head><title>Current time</title></head>\n"
-                <<  "<body>\n"
-                <<  "<h1>Current time</h1>\n"
-                <<  "<p>The current time is "
-                <<  my_program_state::now()
-                <<  " seconds since the epoch.</p>\n"
-                <<  "</body>\n"
-                <<  "</html>\n";
-        }
-        else if(request_.target() == "/joinLobby")
-        {
-            response_.set(http::field::content_type, "application/json");
-            beast::ostream(response_.body())
-                <<  "<html>\n"
-                <<  "<head><title>Current time</title></head>\n"
-                <<  "<body>\n"
-                <<  "<h1>Current time</h1>\n"
-                <<  "<p>The current time is "
-                <<  my_program_state::now()
-                <<  " seconds since the epoch.</p>\n"
-                <<  "</body>\n"
-                <<  "</html>\n";
-        }
-        else if(request_.target() == "/startGame")
-        {
-            response_.set(http::field::content_type, "application/json");
-            beast::ostream(response_.body())
-                <<  "<html>\n"
-                <<  "<head><title>Current time</title></head>\n"
-                <<  "<body>\n"
-                <<  "<h1>Current time</h1>\n"
-                <<  "<p>The current time is "
-                <<  my_program_state::now()
-                <<  " seconds since the epoch.</p>\n"
-                <<  "</body>\n"
-                <<  "</html>\n";
-        }
-        else
-        {
-            response_.result(http::status::not_found);
-            response_.set(http::field::content_type, "text/plain");
-            beast::ostream(response_.body()) << "File not found\r\n";
-        }
+        response_.set(http::field::content_type, "application/json");
+        beast::ostream(response_.body()) << json_array;
+      }
+      else if(request_.target() == "/makeLobby") {
+        lobby temp;
+        temp.password_ = std::string(request_.find("password")->value());
+        temp.name_ = std::string(request_.find("name")->value());
+        temp.ip_ = socket_.remote_endpoint().address().to_string();
+        temp.people_++;
+        lobbyMap[idCounter] = temp;
+        idCounter++;
+        response_.set(http::field::content_type, "application/json");
+        beast::ostream(response_.body())
+            <<  "[]";
+      }
+      else if(request_.target() == "/deleteLobby") {
+        auto idLobby = std::stoi(request_.find("id")->value());
+        lobbyMap.erase(idLobby);
+        response_.set(http::field::content_type, "application/json");
+        beast::ostream(response_.body())
+            <<  "[]";
+      }
+      else if(request_.target() == "/leaveLobby") {
+        auto idLobby = std::stoi(request_.find("id")->value());
+        lobbyMap[idLobby].people_--;
+        response_.set(http::field::content_type, "application/json");
+        beast::ostream(response_.body())
+            <<  "[]";
+      }
+      else if(request_.target() == "/joinLobby") {
+        auto idLobby = std::stoi(request_.find("id")->value());
+        lobbyMap[idLobby].ip_notHost_ = socket_.remote_endpoint().address().to_string();;
+        lobbyMap[idLobby].people_++;
+        response_.set(http::field::content_type, "application/json");
+        beast::ostream(response_.body())
+            <<  "[]";
+      }
+      else if(request_.target() == "/startGame") {
+        auto idLobby = std::stoi(request_.find("id")->value());
+        response_.set(http::field::content_type, "application/json");
+        beast::ostream(response_.body())
+            <<  "[{\"host\": \"" << lobbyMap[idLobby].ip_ << "\", \"notHost\": \""
+            << lobbyMap[idLobby].ip_notHost_ << " \"}]";
+      }
+      else {
+        response_.result(http::status::not_found);
+        response_.set(http::field::content_type, "text/plain");
+        beast::ostream(response_.body()) << "File not found\r\n";
+      }
     }
 
-    void
-    write_response()
-    {
-        auto self = shared_from_this();
+    void write_response() {
+      auto self = shared_from_this();
 
-        response_.content_length(response_.body().size());
+      response_.content_length(response_.body().size());
 
-        http::async_write(
-            socket_,
-            response_,
-            [self](beast::error_code ec, std::size_t)
-            {
-                self->socket_.shutdown(tcp::socket::shutdown_send, ec);
-                self->deadline_.cancel();
-            });
+      http::async_write(
+        socket_,
+        response_,
+        [self](beast::error_code ec, std::size_t) {
+          self->socket_.shutdown(tcp::socket::shutdown_send, ec);
+          self->deadline_.cancel();
+        });
     }
 
-    void
-    check_deadline()
-    {
-        auto self = shared_from_this();
+    void check_deadline() {
+      auto self = shared_from_this();
 
-        deadline_.async_wait(
-            [self](beast::error_code ec)
-            {
-                if(!ec)
-                {
-                    self->socket_.close(ec);
-                }
-            });
+      deadline_.async_wait(
+        [self](beast::error_code ec) {
+          if(!ec) {
+            self->socket_.close(ec);
+          }
+        });
     }
 };
 
